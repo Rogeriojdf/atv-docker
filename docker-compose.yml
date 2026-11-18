@@ -1,26 +1,33 @@
 version: '3.8'
+
 services:
+  # 🌐 SERVIÇO 1: Servidor Web (PHP + Apache)
   web:
     build: .
-    container_name: tcc_web
+    container_name: ecoponto_web
     restart: always
     ports:
-      - "8080:80"
+      - "8080:80"             # Mapeamento: http://localhost:8080 no Windows -> Porta 80 do Contêiner
     volumes:
-      - ./:/var/www/html/
+      - ./:/var/www/html/     # Live-reload: Altera os arquivos locais sem precisar rebuildar a imagem
     depends_on:
-      - db
+      - db                    # Define ordem de subida: aguarda o servico de banco ser instanciado
+
+  # 🗄️ SERVIÇO 2: Banco de Dados MySQL 8.0
   db:
     image: mysql:8.0
-    container_name: tcc_db
+    container_name: ecoponto_db
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: db_tcc
+      MYSQL_DATABASE: db_ecopontos
     ports:
       - "3306:3306"
     volumes:
+      # PULO DO GATO: Copia o banco.sql para a pasta de auto-inicializacao do MySQL
       - ./banco.sql:/docker-entrypoint-initdb.d/banco.sql
+      # Persistencia de dados em volume nomeado
       - dados_mysql:/var/lib/mysql
+
 volumes:
   dados_mysql:
